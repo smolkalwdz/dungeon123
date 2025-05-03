@@ -91,7 +91,9 @@
 // Считывание данных из LocalStorage при загрузке страницы
 window.onload = function() {
   console.log("Page loaded, checking LocalStorage data...");
-  loadDataFromLocalStorage();
+  setTimeout(() => {
+    loadDataFromLocalStorage();
+  }, 1000); // Добавлена задержка в 1 секунду
 };
 
 let cardId = 0;
