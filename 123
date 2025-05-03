@@ -76,15 +76,17 @@
 </div>
 
 <div class="board" id="board">
-  <!-- Столики будут динамически заполняться -->
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 1</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 2</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 3</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 4</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 5</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 6</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 7</h4></div>
+  <div class="cell" ondrop="drop(event)" ondragover="allowDrop(event)"><h4>Стол 8</h4></div>
 </div>
 
 <script>
-// Считывание данных из LocalStorage при загрузке страницы
-window.onload = function() {
-  loadDataFromLocalStorage();
-};
-
 let cardId = 0;
 
 function allowDrop(ev) {
@@ -112,11 +114,30 @@ function addCard() {
   
   if (!name || !phone || !table || !time || !guests) return;
 
-  // Сохраняем карточку в LocalStorage
-  const cardData = { name, phone, time, table, guests, hookah, vr, status: 'Ожидается' };
-  saveDataToLocalStorage(cardData);
+  // Запись данных в Google Таблицы через HTTP-запрос
+  const url = 'ВАШ URL СКРИПТА GOOGLE APPS'; // Сюда вставьте URL вашего развернутого веб-приложения
+  const params = {
+    method: 'get',
+    payload: {
+      name: name,
+      phone: phone,
+      time: time,
+      table: table,
+      guests: guests,
+      hookah: hookah,
+      vr: vr,
+      status: 'Ожидается'
+    }
+  };
 
-  // Создание карточки
+  fetch(url, params)
+    .then(response => response.text())
+    .then(data => {
+      console.log(data);
+      // Можно обновить UI, например, показать уведомление, что бронь добавлена
+    })
+    .catch(error => console.error('Error:', error));
+
   const card = document.createElement('div');
   card.className = 'card red';
   card.id = 'card' + cardId++;
@@ -136,53 +157,7 @@ function addCard() {
     <button onclick="toggleStatus(this.parentNode)">Статус</button>
   `;
 
-  const tableCell = document.querySelectorAll('.cell')[table - 1];
-  if (tableCell) {
-    tableCell.appendChild(card);
-  } else {
-    console.log('Ошибка: Стол не найден!');  // Для отладки
-  }
-}
-
-// Сохранение данных в LocalStorage
-function saveDataToLocalStorage(cardData) {
-  let existingData = JSON.parse(localStorage.getItem('bookings')) || [];
-  existingData.push(cardData);
-  localStorage.setItem('bookings', JSON.stringify(existingData));
-  console.log('Data saved to LocalStorage:', cardData);  // Для отладки
-}
-
-// Загрузка данных из LocalStorage
-function loadDataFromLocalStorage() {
-  const storedData = JSON.parse(localStorage.getItem('bookings')) || [];
-  console.log('Loaded data from LocalStorage:', storedData);  // Для отладки
-  storedData.forEach(data => {
-    const card = document.createElement('div');
-    card.className = 'card red';
-    card.id = 'card' + cardId++;
-    card.draggable = true;
-    card.ondragstart = drag;
-
-    card.innerHTML = `
-      <strong>${data.name}</strong><br>
-      Телефон: ${data.phone}<br>
-      Время: ${data.time}<br>
-      Количество: ${data.guests}<br>
-      Стол: ${data.table}<br>
-      ${data.hookah ? `<span>🍹 ${data.hookah}</span><br>` : ''}
-      ${data.vr ? `<span>🎮 ${data.vr}</span><br>` : ''}
-      <button class="edit-button" onclick="editCard(this.parentNode)">Редактировать</button>
-      <button class="delete-button" onclick="deleteCard(this.parentNode)">Удалить</button>
-      <button onclick="toggleStatus(this.parentNode)">Статус</button>
-    `;
-
-    const tableCell = document.querySelectorAll('.cell')[data.table - 1];
-    if (tableCell) {
-      tableCell.appendChild(card);
-    } else {
-      console.log('Ошибка: Стол не найден!');  // Для отладки
-    }
-  });
+  document.querySelectorAll('.cell')[table - 1].appendChild(card);
 }
 
 function toggleStatus(card) {
@@ -196,10 +171,6 @@ function toggleStatus(card) {
 }
 
 function deleteCard(card) {
-  let existingData = JSON.parse(localStorage.getItem('bookings')) || [];
-  existingData = existingData.filter(data => data.name !== card.querySelector('strong').textContent);
-  localStorage.setItem('bookings', JSON.stringify(existingData));
-  console.log('Data removed from LocalStorage:', card.querySelector('strong').textContent);  // Для отладки
   card.remove();
 }
 
@@ -213,20 +184,6 @@ function editCard(card) {
   card.querySelector("br").nextSibling.textContent = "Телефон: " + phone;
   card.querySelector("br").nextSibling.nextSibling.textContent = "Время: " + time;
   card.querySelector("br").nextSibling.nextSibling.nextSibling.textContent = "Количество: " + guests;
-
-  // Сохранение изменений в LocalStorage
-  let existingData = JSON.parse(localStorage.getItem('bookings')) || [];
-  existingData = existingData.map(data => {
-    if (data.name === card.querySelector("strong").textContent) {
-      data.name = name;
-      data.phone = phone;
-      data.time = time;
-      data.guests = guests;
-    }
-    return data;
-  });
-  localStorage.setItem('bookings', JSON.stringify(existingData));
-  console.log('Data updated in LocalStorage:', existingData);  // Для отладки
 }
 </script>
 
