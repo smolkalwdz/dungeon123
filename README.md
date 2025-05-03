@@ -16,6 +16,7 @@
       padding: 10px;
       min-height: 120px;
       position: relative;
+      overflow-y: auto;
     }
     .cell h4 {
       margin: 0 0 10px 0;
@@ -76,12 +77,20 @@
 </div>
 
 <div class="board" id="board">
-  <!-- Столики будут динамически заполняться -->
+  <div class="cell" id="table-1"><h4>Стол 1</h4></div>
+  <div class="cell" id="table-2"><h4>Стол 2</h4></div>
+  <div class="cell" id="table-3"><h4>Стол 3</h4></div>
+  <div class="cell" id="table-4"><h4>Стол 4</h4></div>
+  <div class="cell" id="table-5"><h4>Стол 5</h4></div>
+  <div class="cell" id="table-6"><h4>Стол 6</h4></div>
+  <div class="cell" id="table-7"><h4>Стол 7</h4></div>
+  <div class="cell" id="table-8"><h4>Стол 8</h4></div>
 </div>
 
 <script>
 // Считывание данных из LocalStorage при загрузке страницы
 window.onload = function() {
+  console.log("Page loaded, checking LocalStorage data...");
   loadDataFromLocalStorage();
 };
 
@@ -110,7 +119,10 @@ function addCard() {
   const hookah = document.getElementById('hookah').checked ? 'Кальян' : '';
   const vr = document.getElementById('vr').checked ? 'VR' : '';
   
-  if (!name || !phone || !table || !time || !guests) return;
+  if (!name || !phone || !table || !time || !guests) {
+    alert("Заполните все поля!");
+    return;
+  }
 
   // Сохраняем карточку в LocalStorage
   const cardData = { name, phone, time, table, guests, hookah, vr, status: 'Ожидается' };
@@ -136,11 +148,13 @@ function addCard() {
     <button onclick="toggleStatus(this.parentNode)">Статус</button>
   `;
 
-  const tableCell = document.querySelectorAll('.cell')[table - 1];
+  // Используем правильный ID для столов
+  const tableCell = document.querySelector(`#table-${table}`);
   if (tableCell) {
     tableCell.appendChild(card);
+    console.log(`Карточка добавлена в Стол ${table}`); // Лог для отладки
   } else {
-    console.log('Ошибка: Стол не найден!');  // Для отладки
+    console.log(`Ошибка: Стол ${table} не найден!`);  // Лог для отладки
   }
 }
 
@@ -149,13 +163,13 @@ function saveDataToLocalStorage(cardData) {
   let existingData = JSON.parse(localStorage.getItem('bookings')) || [];
   existingData.push(cardData);
   localStorage.setItem('bookings', JSON.stringify(existingData));
-  console.log('Data saved to LocalStorage:', cardData);  // Для отладки
+  console.log('Data saved to LocalStorage:', cardData);  // Лог для отладки
 }
 
 // Загрузка данных из LocalStorage
 function loadDataFromLocalStorage() {
   const storedData = JSON.parse(localStorage.getItem('bookings')) || [];
-  console.log('Loaded data from LocalStorage:', storedData);  // Для отладки
+  console.log('Loaded data from LocalStorage:', storedData);  // Лог для отладки
   storedData.forEach(data => {
     const card = document.createElement('div');
     card.className = 'card red';
@@ -176,11 +190,12 @@ function loadDataFromLocalStorage() {
       <button onclick="toggleStatus(this.parentNode)">Статус</button>
     `;
 
-    const tableCell = document.querySelectorAll('.cell')[data.table - 1];
+    // Используем правильный ID для столов
+    const tableCell = document.querySelector(`#table-${data.table}`);
     if (tableCell) {
       tableCell.appendChild(card);
     } else {
-      console.log('Ошибка: Стол не найден!');  // Для отладки
+      console.log(`Ошибка: Стол ${data.table} не найден!`);  // Лог для отладки
     }
   });
 }
@@ -199,7 +214,7 @@ function deleteCard(card) {
   let existingData = JSON.parse(localStorage.getItem('bookings')) || [];
   existingData = existingData.filter(data => data.name !== card.querySelector('strong').textContent);
   localStorage.setItem('bookings', JSON.stringify(existingData));
-  console.log('Data removed from LocalStorage:', card.querySelector('strong').textContent);  // Для отладки
+  console.log('Data removed from LocalStorage:', card.querySelector('strong').textContent);  // Лог для отладки
   card.remove();
 }
 
@@ -226,7 +241,7 @@ function editCard(card) {
     return data;
   });
   localStorage.setItem('bookings', JSON.stringify(existingData));
-  console.log('Data updated in LocalStorage:', existingData);  // Для отладки
+  console.log('Data updated in LocalStorage:', existingData);  // Лог для отладки
 }
 </script>
 
